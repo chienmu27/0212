@@ -30,6 +30,7 @@
             font-size: 1.3rem;
             text-align: center;
         }
+        
         /* 分頁按鈕樣式 */
         .nav-tabs .nav-link {
             color: #495057;
@@ -38,6 +39,7 @@
             padding: 15px;
             border: none;
             background-color: #f1f3f5;
+            transition: all 0.3s;
         }
         .nav-tabs .nav-link.active {
             color: #4e73df;
@@ -45,20 +47,43 @@
             border-top: 4px solid #4e73df;
             border-bottom: none;
         }
+        .nav-tabs .nav-link:hover {
+            background-color: #e9ecef;
+        }
+
         .tab-content {
             background-color: #fff;
             padding: 20px;
             min-height: 400px;
         }
 
-        /* 
-           Google 表單 iframe 高度設定 
-           設定為 220vh (視窗高度的 220%)，確保表單能完整展開不出現內捲軸
-        */
+        /* 需知頁面的樣式 */
+        .info-section h4 {
+            color: #4e73df;
+            border-left: 5px solid #4e73df;
+            padding-left: 10px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        .info-section ul li {
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        .highlight-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Google 表單 iframe 高度設定 (220vh) */
         .google-form-wrapper {
             position: relative;
             width: 100%;
-            height: 320vh; /* 這裡控制高度 */
+            height: 350vh;
         }
         iframe {
             width: 100%;
@@ -92,18 +117,24 @@
             🏫 社團報名與查詢系統
         </div>
         
-        <!-- 分頁導航 (已交換順序) -->
+        <!-- 分頁導航 (三個分頁) -->
         <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
-            <!-- 分頁 1: 線上報名 (預設開啟) -->
+            <!-- 分頁 1: 報名需知 (預設開啟) -->
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="true">
+                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-pane" type="button" role="tab" aria-controls="info-pane" aria-selected="true">
+                    📢 報名需知
+                </button>
+            </li>
+            <!-- 分頁 2: 線上報名 -->
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="false">
                     📝 線上報名
                 </button>
             </li>
-            <!-- 分頁 2: 查詢紀錄 -->
+            <!-- 分頁 3: 查詢紀錄 -->
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="query-tab" data-bs-toggle="tab" data-bs-target="#query-pane" type="button" role="tab" aria-controls="query-pane" aria-selected="false">
-                    🔍 查詢報名紀錄
+                    🔍 查詢紀錄
                 </button>
             </li>
         </ul>
@@ -111,10 +142,83 @@
         <!-- 分頁內容 -->
         <div class="tab-content" id="myTabContent">
             
-            <!-- 內容區塊 1: Google 表單 (Active) -->
-            <div class="tab-pane fade show active" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
+            <!-- 內容區塊 1: 報名需知 (這裡的內容只有您可以編輯) -->
+            <div class="tab-pane fade show active info-section p-2" id="info-pane" role="tabpanel" aria-labelledby="info-tab">
+                
+                <!-- 重要提醒區塊 -->
+                <div class="highlight-box">
+                    <strong>⚠️ 重要提醒：</strong> 請務必確認學生年級是否符合社團招收規定，重複報名者將以最後一次提交的時間為準。
+                </div>
+
+                <!-- 編輯區域開始：您可以直接修改下方的文字 -->
+<h3 class="text-center mb-4" style="color: #4e73df; font-weight: bold;">
+    台東縣東海國小<br>社團活動費退費申請辦法
+</h3>
+
+<!-- 黃色醒目提示框 -->
+<div class="highlight-box">
+    <strong>⚠️ 重要提醒：</strong><br>
+    報名即佔用上課名額，於<strong>「報名時間截止」</strong>即視為報名成功。
+</div>
+
+<h4>一、退費標準規定</h4>
+<p>凡參加收費性社團活動，因故無法如期上課，依以下規定辦理：</p>
+<ul>
+    <li class="mb-2">
+        <strong>1. 學校因素：</strong><br>
+        若本校因故未能開班上課，<span class="text-danger fw-bold">全額退還</span>已繳費用。
+    </li>
+    <li class="mb-2">
+        <strong>2. 個人因素：</strong><br>
+        學員完成報名後，因個人因素無法上課，依下列標準退費：
+        <ul class="mt-2" style="list-style-type: disc; background-color: #f8f9fa; padding: 15px 15px 15px 35px; border-radius: 8px;">
+            <li class="mb-1">
+                <strong>報名截止前</strong> 退社者：<br>
+                退還已繳各項費用之 <span class="text-danger fw-bold">七成 (70%)</span>。
+            </li>
+            <li class="mb-1">
+                開課後 <strong>未逾全期 1/3</strong> 者：<br>
+                退還各項費用之 <span class="text-danger fw-bold">半數 (50%)</span>。
+            </li>
+            <li class="mb-1">
+                開課後 <strong>已逾全期 1/3</strong> 者：<br>
+                <span class="text-danger fw-bold">不予退費</span>。
+            </li>
+            <li>
+                <strong>特殊假別：</strong><br>
+                學員於活動期間除因 <span class="fw-bold">公假、喪假</span> 而短期無法上課，得依請假天數比例酌予退費外，其他因素之短期請假皆不予退費。
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h4>二、退費辦理方式</h4>
+<ul>
+    <li>退費申請得<strong>親自</strong>或<strong>委託他人</strong>辦理 (委託辦理需攜帶委託書)。</li>
+    <li>請至本校 <strong>學務處</strong> 填寫退費申請書乙份。</li>
+    <li>退費一律採用 <strong>郵局轉帳</strong> 方式，無帳戶者以支票辦理退費。</li>
+</ul>
+
+<hr class="my-4">
+
+<div class="text-muted small">
+    三、本辦法經校務會議通過後，呈 校長核可後施行。
+</div>
+
+                <hr>
+                <div class="text-center mt-4">
+                    <p>閱讀完畢後，請點選上方 <strong>「📝 線上報名」</strong> 頁籤進行報名。</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('form-tab').click()">
+                        我已閱讀，前往報名 &raquo;
+                    </button>
+                </div>
+                <!-- 編輯區域結束 -->
+
+            </div>
+
+            <!-- 內容區塊 2: Google 表單 -->
+            <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
                 <div class="google-form-wrapper">
-                    <!-- 嵌入 Google 表單 -->
                     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true" 
                             title="社團報名表單">
                         載入中...
@@ -122,7 +226,7 @@
                 </div>
             </div>
 
-            <!-- 內容區塊 2: 查詢介面 -->
+            <!-- 內容區塊 3: 查詢介面 -->
             <div class="tab-pane fade" id="query-pane" role="tabpanel" aria-labelledby="query-tab">
                 <div class="p-2">
                     <div class="mb-4 text-center">
@@ -134,11 +238,10 @@
                             </button>
                         </div>
                         <div class="form-text text-muted mt-2">
-                            輸入後按下查詢，系統將列出您的所有報名紀錄。
+                            系統將列出您的所有報名紀錄。
                         </div>
                     </div>
 
-                    <!-- 讀取動畫 -->
                     <div id="loadingSpinner" class="text-center my-4" style="display: none;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
@@ -146,10 +249,7 @@
                         <p class="mt-2 text-primary">資料查詢中...</p>
                     </div>
 
-                    <!-- 錯誤訊息 -->
                     <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
-
-                    <!-- 結果顯示區 -->
                     <div id="resultArea"></div>
                 </div>
             </div>
@@ -170,7 +270,6 @@
     // 【設定區】請修改此處的網址
     // ==========================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec"; 
-    // 例如："https://script.google.com/macros/s/AKfycbx.../exec"
 
     function handleEnter(event) {
         if (event.key === "Enter") {
