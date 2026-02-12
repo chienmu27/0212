@@ -1,262 +1,217 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>社團報名查詢系統</title>
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>社團選項管理</title>
   <style>
-    body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
-    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+    body{font-family:Arial,"Microsoft JhengHei",sans-serif;background:#f6f7fb;margin:0;padding:20px}
+    .wrap{max-width:900px;margin:auto}
+    h1{font-size:22px;margin:0 0 16px}
+    .card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:16px;margin-bottom:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    input,button{font-size:16px;padding:10px;border-radius:10px;border:1px solid #ddd}
+    input{flex:1;min-width:240px}
+    button{cursor:pointer;border:none;background:#2563eb;color:#fff}
+    button:hover{opacity:.9}
+    .list{margin-top:12px}
+    .item{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #eee;border-radius:10px;margin-bottom:8px}
+    .item button{background:#dc2626}
+    .msg{margin-top:10px;font-size:14px;color:#444}
+    .small{font-size:13px;color:#666}
+    .tabs{display:flex;gap:8px;margin-bottom:16px}
+    .tab{padding:10px 14px;border-radius:999px;border:1px solid #ddd;background:#fff;cursor:pointer}
+    .tab.active{background:#2563eb;color:#fff;border-color:#2563eb}
+    .page{display:none}
+    .page.active{display:block}
   </style>
-
-  <!-- ✅ GitHub Pages 最穩定的 importmap -->
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.263.1"
-  }
-}
-  </script>
 </head>
 
 <body>
-  <div id="root"></div>
+<div class="wrap">
+  <h1>社團選項管理（GitHub Pages 版）</h1>
 
-  <script type="module">
-    import React, { useState } from "react";
-    import { createRoot } from "react-dom/client";
-    import { Search, Trash2, Info, Loader2, Phone, ClipboardList } from "lucide-react";
+  <div class="tabs">
+    <div class="tab active" data-page="p1">管理社團選項</div>
+    <div class="tab" data-page="p2">表單（嵌入）</div>
+  </div>
 
-    const SPREADSHEET_ID = "17gOPXFMR1UzS5NHOE7MV6Jbfzo1blDnkmjBksSdpCvk";
-    const SHEET_NAME = "表單回應 1";
+  <!-- Page 1 -->
+  <div id="p1" class="page active">
+    <div class="card">
+      <div class="row">
+        <input id="clubInput" type="text" placeholder="輸入要新增的社團名稱">
+        <button onclick="addClub()">新增</button>
+        <button onclick="refreshList()">重新整理</button>
+      </div>
+      <div class="msg" id="msg"></div>
+      <div class="list" id="list"></div>
+      <div class="small">※ 刪除與新增皆會同步更新 Google 表單選項</div>
+    </div>
+  </div>
 
-    // ⚠️ 請確認是最新部署的 /exec
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5rHaglom7hjSGWHD8YCwvt_AGusjBXgosY87hdHvJHhU_4z5vaJTyib1gxN9fLbCG0w/exec";
+  <!-- Page 2 -->
+  <div id="p2" class="page">
+    <div class="card">
+      <div class="small">這裡放你的 Google 表單嵌入碼（原功能保留）</div>
+      <iframe
+        src="https://docs.google.com/forms/d/e/XXXXXXXXXXXX/viewform?embedded=true"
+        width="100%"
+        height="900"
+        frameborder="0"
+        marginheight="0"
+        marginwidth="0"
+      >載入中…</iframe>
+    </div>
+  </div>
 
-    const App = () => {
-      const [phoneNumber, setPhoneNumber] = useState("");
-      const [results, setResults] = useState([]);
-      const [status, setStatus] = useState("IDLE");
-      const [message, setMessage] = useState("");
+  <!-- 隱藏 iframe：用來送出 POST 避免 CORS -->
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
 
-      const formatClubName = (name) => {
-        if (!name) return "";
-        return name.split(/[（(]/)[0].trim();
-      };
+  <!-- 隱藏 form：新增 -->
+  <form id="postForm" method="POST" target="hidden_iframe" style="display:none;">
+    <input type="hidden" name="action" id="formAction">
+    <input type="hidden" name="value" id="formValue">
+  </form>
 
-      const handleSearch = async (e) => {
-        if (e) e.preventDefault();
+</div>
 
-        const phone = phoneNumber.trim();
-        if (!phone) {
-          setMessage("請輸入完整手機號碼");
-          return;
-        }
+<script>
+/** ⭐⭐⭐ 改成你的 GAS Web App 網址 ⭐⭐⭐ */
+const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyCxUmsmO3bj1bigj2_hEqX6cNHwUkUWNVEl-TspTSAc2RComMfkF3MaPDvqZKlqo0oyg/exec";
 
-        setStatus("LOADING");
-        setMessage("");
-        setResults([]);
+const msgEl = document.getElementById("msg");
+const listEl = document.getElementById("list");
+const inputEl = document.getElementById("clubInput");
+const postForm = document.getElementById("postForm");
+const formAction = document.getElementById("formAction");
+const formValue = document.getElementById("formValue");
 
-        try {
-          const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-          const response = await fetch(url);
-          const text = await response.text();
+function setMsg(text, ok=true){
+  msgEl.textContent = text || "";
+  msgEl.style.color = ok ? "#166534" : "#b91c1c";
+}
 
-          const jsonData = JSON.parse(text.substring(47, text.length - 2));
-          const rows = jsonData.table.rows || [];
+// =========================
+// Tab 切換
+// =========================
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
 
-          const records = rows.map((row) => {
-            const c = row.c || [];
-            return {
-              timestamp: c[0]?.f || c[0]?.v || "",
-              email: c[1]?.v || "",
-              clubItem: c[2]?.v || "",
-              displayClubItem: formatClubName(c[2]?.v || ""),
-              grade: c[3]?.v || "",
-              className: c[4]?.v || "",
-              seatNumber: c[5]?.v || "",
-              studentName: c[6]?.v || "",
-              phoneNumber: String(c[7]?.v || "")
-            };
-          });
+    const pageId = tab.dataset.page;
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(pageId).classList.add("active");
+  });
+});
 
-          const filtered = records.filter((r) => r.phoneNumber === phone);
+// =========================
+// 讀取清單（GET）
+// =========================
+async function refreshList(){
+  setMsg("讀取中…");
+  listEl.innerHTML = "";
 
-          setResults(filtered);
+  try{
+    const url = GAS_WEBAPP_URL + "?action=list&t=" + Date.now();
+    const res = await fetch(url);
+    const data = await res.json();
 
-          if (filtered.length === 0) {
-            setMessage(`查無手機號碼「${phone}」的報名紀錄。`);
-          } else {
-            setPhoneNumber("");
-            setMessage("");
-          }
+    if(!data.ok){
+      setMsg(data.message || "讀取失敗", false);
+      return;
+    }
 
-          setStatus("SUCCESS");
-        } catch (error) {
-          console.error(error);
-          setStatus("ERROR");
-          setMessage("連線失敗，請檢查網路或試算表權限。");
-        }
-      };
+    renderList(data.list || []);
+    setMsg("讀取完成");
+  }catch(err){
+    setMsg("讀取失敗：" + err, false);
+  }
+}
 
-      const handleDelete = async (record) => {
-        if (!confirm(`確定要刪除「${record.studentName}」的「${record.displayClubItem}」報名嗎？`)) return;
+function renderList(list){
+  listEl.innerHTML = "";
 
-        setStatus("DELETING");
+  if(!list.length){
+    listEl.innerHTML = `<div class="small">目前沒有任何社團項目</div>`;
+    return;
+  }
 
-        try {
-          const res = await fetch(GAS_WEB_APP_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "delete",
-              timestamp: record.timestamp,
-              email: record.email,
-              clubItem: record.clubItem,
-              grade: record.grade,
-              className: record.className,
-              seatNumber: record.seatNumber,
-              studentName: record.studentName,
-              phoneNumber: record.phoneNumber
-            })
-          });
+  list.forEach(name=>{
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <div>${escapeHtml(name)}</div>
+      <button onclick="deleteClub('${encodeURIComponent(name)}')">刪除</button>
+    `;
+    listEl.appendChild(div);
+  });
+}
 
-          const data = await res.json();
+function escapeHtml(str){
+  return (str+"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
-          if (data.status === "SUCCESS") {
-            setResults((prev) =>
-              prev.filter(
-                (r) =>
-                  !(r.timestamp === record.timestamp &&
-                    r.studentName === record.studentName &&
-                    r.clubItem === record.clubItem)
-              )
-            );
-            alert(`刪除成功！（刪除筆數：${data.deletedCount}）`);
-          } else if (data.status === "NOT_FOUND") {
-            alert("找不到符合條件的資料（可能已被刪除或同步中）");
-          } else {
-            alert("刪除失敗：" + (data.message || "未知錯誤"));
-          }
+// =========================
+// 新增（POST：用 form + iframe）
+// =========================
+function addClub(){
+  const val = (inputEl.value || "").trim();
+  if(!val){
+    setMsg("請先輸入社團名稱", false);
+    return;
+  }
 
-          setStatus("SUCCESS");
-        } catch (error) {
-          console.error(error);
-          alert("刪除失敗：可能是 GAS 未開啟 CORS 或網路問題。");
-          setStatus("ERROR");
-        }
-      };
+  setMsg("新增中…");
 
-      return React.createElement("div", { className: "min-h-screen pb-10" }, [
-        React.createElement("header", { className: "bg-blue-600 text-white shadow-lg mb-8" },
-          React.createElement("div", { className: "max-w-4xl mx-auto px-6 py-10 text-center" }, [
-            React.createElement(ClipboardList, { size: 40, className: "mx-auto mb-4" }),
-            React.createElement("h1", { className: "text-2xl font-bold" }, "社團報名紀錄查詢"),
-            React.createElement("p", { className: "mt-1 text-blue-100" }, "輸入家長手機號碼，管理您的報名資料")
-          ])
-        ),
+  // form 送出避免 CORS
+  postForm.action = GAS_WEBAPP_URL;
+  formAction.value = "add";
+  formValue.value = val;
 
-        React.createElement("main", { className: "max-w-3xl mx-auto px-4" }, [
-          React.createElement("div", { className: "bg-white rounded-2xl p-6 card-shadow mb-8 -mt-16 relative z-10 border border-blue-50" },
-            React.createElement("form", { onSubmit: handleSearch, className: "flex flex-col md:flex-row gap-3" }, [
-              React.createElement("div", { className: "relative flex-grow" }, [
-                React.createElement(Phone, { className: "absolute left-4 top-1/2 -translate-y-1/2 text-slate-400", size: 20 }),
-                React.createElement("input", {
-                  type: "tel",
-                  placeholder: "手機號碼 (例如: 0912345678)",
-                  value: phoneNumber,
-                  onChange: (e) => setPhoneNumber(e.target.value),
-                  className: "w-full pl-12 pr-4 py-4 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                })
-              ]),
-              React.createElement("button", {
-                type: "submit",
-                disabled: status === "LOADING",
-                className: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-              }, [
-                status === "LOADING"
-                  ? React.createElement(Loader2, { className: "animate-spin" })
-                  : React.createElement(Search),
-                "查詢"
-              ])
-            ])
-          ),
+  postForm.submit();
 
-          message &&
-            React.createElement("div", {
-              className: `mb-6 p-4 rounded-xl flex items-center gap-3 animate-fade-in ${
-                status === "ERROR" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-700"
-              }`
-            }, [
-              React.createElement(Info, { size: 20 }),
-              React.createElement("p", { className: "font-medium" }, message)
-            ]),
+  // 由於 iframe 無法直接拿回 response，採用延遲刷新
+  setTimeout(async ()=>{
+    inputEl.value = "";
+    await refreshList();
+    setMsg("新增完成");
+  }, 1200);
+}
 
-          results.length > 0 &&
-            React.createElement("div", { className: "space-y-4 animate-fade-in" }, [
-              React.createElement("h2", { className: "text-slate-600 font-bold px-1" }, `共有 ${results.length} 筆資料`),
+// =========================
+// 刪除（POST：用 form + iframe）
+// =========================
+function deleteClub(encodedName){
+  const name = decodeURIComponent(encodedName);
 
-              ...results.map((record, i) =>
-                React.createElement("div", {
-                  key: i,
-                  className:
-                    "bg-white rounded-2xl p-6 card-shadow border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200 transition-all"
-                }, [
-                  React.createElement("div", { className: "space-y-2" }, [
-                    React.createElement("div", { className: "flex items-center gap-2" }, [
-                      React.createElement(
-                        "span",
-                        { className: "text-xs font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md" },
-                        `${record.grade}${record.className}`
-                      ),
-                      React.createElement("h3", { className: "font-bold text-slate-800 text-lg" }, record.studentName)
-                    ]),
-                    React.createElement("div", null, [
-                      React.createElement("p", { className: "text-xs text-slate-400 font-bold mb-0.5" }, "報名項目"),
-                      React.createElement("p", { className: "text-blue-600 font-black text-xl" }, record.displayClubItem)
-                    ]),
-                    React.createElement("p", { className: "text-[10px] text-slate-300" }, `報名時間：${record.timestamp}`)
-                  ]),
+  if(!confirm("確定要刪除：「" + name + "」？")){
+    return;
+  }
 
-                  React.createElement("button", {
-                    onClick: () => handleDelete(record),
-                    disabled: status === "DELETING",
-                    className:
-                      "flex items-center gap-1 text-red-500 hover:bg-red-50 px-4 py-2 rounded-lg font-bold transition-all border border-red-100"
-                  }, [
-                    status === "DELETING"
-                      ? React.createElement(Loader2, { size: 18, className: "animate-spin" })
-                      : React.createElement(Trash2, { size: 18 }),
-                    "刪除"
-                  ])
-                ])
-              )
-            ])
-        ]),
+  setMsg("刪除中…");
 
-        React.createElement("footer", { className: "max-w-3xl mx-auto px-4 mt-12" },
-          React.createElement("div", { className: "bg-slate-800 text-slate-300 p-6 rounded-2xl text-xs space-y-2" }, [
-            React.createElement("p", { className: "text-white font-bold mb-2 flex items-center gap-1" }, [
-              React.createElement(Info, { size: 14 }),
-              "注意事項"
-            ]),
-            React.createElement("p", null, "1. 刪除資料會比對時間、姓名、班級座號等全數資訊，確保刪除正確。"),
-            React.createElement("p", null, "2. 社團名稱比對採關鍵字比對 (如「直排輪」)，括號後資訊不影響刪除。"),
-            React.createElement("p", null, "3. 若剛刪除完立即查詢，試算表可能需 5-10 秒同步。")
-          ])
-        )
-      ]);
-    };
+  postForm.action = GAS_WEBAPP_URL;
+  formAction.value = "delete";
+  formValue.value = name;
 
-    createRoot(document.getElementById("root")).render(React.createElement(App));
-  </script>
+  postForm.submit();
+
+  setTimeout(async ()=>{
+    await refreshList();
+    setMsg("刪除完成");
+  }, 1200);
+}
+
+// 初始載入
+refreshList();
+</script>
+
 </body>
 </html>
