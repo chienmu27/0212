@@ -12,16 +12,15 @@
             font-family: "Microsoft JhengHei", "Heiti TC", Arial, sans-serif;
         }
         .container {
-            max-width: 900px; /*稍微加寬以容納表單*/
+            max-width: 900px;
             margin-top: 30px;
             padding-bottom: 50px;
         }
-        /* 卡片樣式 */
         .card {
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: none;
-            overflow: hidden; /* 確保圓角不被內容切掉 */
+            overflow: hidden;
         }
         .card-header-custom {
             background-color: #4e73df;
@@ -31,7 +30,6 @@
             font-size: 1.3rem;
             text-align: center;
         }
-        
         /* 分頁按鈕樣式 */
         .nav-tabs .nav-link {
             color: #495057;
@@ -45,6 +43,7 @@
             color: #4e73df;
             background-color: #fff;
             border-top: 4px solid #4e73df;
+            border-bottom: none;
         }
         .tab-content {
             background-color: #fff;
@@ -52,12 +51,14 @@
             min-height: 400px;
         }
 
-        /* Google 表單 iframe RWD 設定 */
+        /* 
+           Google 表單 iframe 高度設定 
+           設定為 220vh (視窗高度的 220%)，確保表單能完整展開不出現內捲軸
+        */
         .google-form-wrapper {
             position: relative;
             width: 100%;
-            /* 設定高度為視窗高度的 85%，確保手機版也能完整顯示 */
-            height: 85vh; 
+            height: 220vh; /* 這裡控制高度 */
         }
         iframe {
             width: 100%;
@@ -65,7 +66,7 @@
             border: none;
         }
 
-        /* 查詢結果卡片 */
+        /* 查詢結果卡片樣式 */
         .result-card {
             margin-top: 15px;
             border-left: 5px solid #1cc88a;
@@ -81,10 +82,6 @@
             font-weight: 800;
             font-size: 1.3rem;
         }
-        .badge-custom {
-            font-size: 0.9rem;
-            padding: 6px 10px;
-        }
     </style>
 </head>
 <body>
@@ -95,18 +92,18 @@
             🏫 社團報名與查詢系統
         </div>
         
-        <!-- 分頁導航 -->
+        <!-- 分頁導航 (已交換順序) -->
         <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
-            <!-- 分頁 1: 查詢 -->
+            <!-- 分頁 1: 線上報名 (預設開啟) -->
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="query-tab" data-bs-toggle="tab" data-bs-target="#query-pane" type="button" role="tab" aria-controls="query-pane" aria-selected="true">
-                    🔍 查詢報名紀錄
+                <button class="nav-link active" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="true">
+                    📝 線上報名
                 </button>
             </li>
-            <!-- 分頁 2: 報名 -->
+            <!-- 分頁 2: 查詢紀錄 -->
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="false">
-                    📝 線上報名
+                <button class="nav-link" id="query-tab" data-bs-toggle="tab" data-bs-target="#query-pane" type="button" role="tab" aria-controls="query-pane" aria-selected="false">
+                    🔍 查詢報名紀錄
                 </button>
             </li>
         </ul>
@@ -114,8 +111,19 @@
         <!-- 分頁內容 -->
         <div class="tab-content" id="myTabContent">
             
-            <!-- 內容區塊 1: 查詢介面 -->
-            <div class="tab-pane fade show active" id="query-pane" role="tabpanel" aria-labelledby="query-tab">
+            <!-- 內容區塊 1: Google 表單 (Active) -->
+            <div class="tab-pane fade show active" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
+                <div class="google-form-wrapper">
+                    <!-- 嵌入 Google 表單 -->
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true" 
+                            title="社團報名表單">
+                        載入中...
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- 內容區塊 2: 查詢介面 -->
+            <div class="tab-pane fade" id="query-pane" role="tabpanel" aria-labelledby="query-tab">
                 <div class="p-2">
                     <div class="mb-4 text-center">
                         <label for="phoneInput" class="form-label fw-bold fs-5">請輸入報名時填寫的手機號碼：</label>
@@ -146,17 +154,6 @@
                 </div>
             </div>
 
-            <!-- 內容區塊 2: Google 表單 -->
-            <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
-                <div class="google-form-wrapper">
-                    <!-- 嵌入 Google 表單 -->
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true" 
-                            title="社團報名表單">
-                        載入中...
-                    </iframe>
-                </div>
-            </div>
-
         </div>
     </div>
     
@@ -175,14 +172,12 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec"; 
     // 例如："https://script.google.com/macros/s/AKfycbx.../exec"
 
-    // 監聽 Enter 鍵
     function handleEnter(event) {
         if (event.key === "Enter") {
             searchData();
         }
     }
 
-    // 執行查詢
     async function searchData() {
         const phoneInput = document.getElementById('phoneInput').value.trim();
         const resultArea = document.getElementById('resultArea');
@@ -244,7 +239,6 @@
         }
     }
 
-    // 渲染結果
     function renderResults(data) {
         const resultArea = document.getElementById('resultArea');
         let html = `<h5 class="mb-3 ps-2 border-start border-4 border-primary">查詢結果：共 ${data.length} 筆</h5>`;
@@ -264,9 +258,9 @@
                                     ${item.club}
                                 </h4>
                                 <div class="text-secondary" style="font-size: 1.05rem;">
-                                    <span class="badge bg-secondary badge-custom me-2">學生</span>
+                                    <span class="badge bg-secondary me-2">學生</span>
                                     ${item.student_name}
-                                    <span class="ms-2 badge bg-light text-dark border badge-custom">
+                                    <span class="ms-2 badge bg-light text-dark border">
                                         ${item.grade} ${item.class_name} (${item.seat_num}號)
                                     </span>
                                 </div>
