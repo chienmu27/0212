@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社團報名查詢系統</title>
-    <!-- 引入 Bootstrap 5 CSS 進行美化 -->
+    <title>社團報名與查詢系統</title>
+    <!-- 引入 Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -12,99 +12,156 @@
             font-family: "Microsoft JhengHei", "Heiti TC", Arial, sans-serif;
         }
         .container {
-            max-width: 800px;
-            margin-top: 50px;
+            max-width: 900px; /*稍微加寬以容納表單*/
+            margin-top: 30px;
             padding-bottom: 50px;
         }
+        /* 卡片樣式 */
         .card {
             border-radius: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: none;
+            overflow: hidden; /* 確保圓角不被內容切掉 */
         }
-        .card-header {
+        .card-header-custom {
             background-color: #4e73df;
             color: white;
-            border-radius: 15px 15px 0 0 !important;
+            padding: 15px;
             font-weight: bold;
             font-size: 1.3rem;
+            text-align: center;
+        }
+        
+        /* 分頁按鈕樣式 */
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 600;
+            font-size: 1.1rem;
             padding: 15px;
+            border: none;
+            background-color: #f1f3f5;
         }
-        .btn-primary {
-            background-color: #4e73df;
-            border-color: #4e73df;
-            padding-left: 20px;
-            padding-right: 20px;
+        .nav-tabs .nav-link.active {
+            color: #4e73df;
+            background-color: #fff;
+            border-top: 4px solid #4e73df;
         }
-        .btn-primary:hover {
-            background-color: #2e59d9;
+        .tab-content {
+            background-color: #fff;
+            padding: 20px;
+            min-height: 400px;
         }
+
+        /* Google 表單 iframe RWD 設定 */
+        .google-form-wrapper {
+            position: relative;
+            width: 100%;
+            /* 設定高度為視窗高度的 85%，確保手機版也能完整顯示 */
+            height: 85vh; 
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 查詢結果卡片 */
         .result-card {
             margin-top: 15px;
             border-left: 5px solid #1cc88a;
             transition: transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .result-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .club-name {
-            color: #4e73df; /* 使用深藍色強調 */
+            color: #4e73df;
             font-weight: 800;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
         }
-        .student-info {
-            font-size: 1.1rem;
-            color: #555;
-        }
-        #loadingSpinner {
-            display: none;
-        }
-        .alert {
-            border-radius: 10px;
+        .badge-custom {
+            font-size: 0.9rem;
+            padding: 6px 10px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card main-card">
-        <div class="card-header text-center">
-            🏫 社團報名查詢系統
+    <div class="card">
+        <div class="card-header-custom">
+            🏫 社團報名與查詢系統
         </div>
-        <div class="card-body p-4">
+        
+        <!-- 分頁導航 -->
+        <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+            <!-- 分頁 1: 查詢 -->
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="query-tab" data-bs-toggle="tab" data-bs-target="#query-pane" type="button" role="tab" aria-controls="query-pane" aria-selected="true">
+                    🔍 查詢報名紀錄
+                </button>
+            </li>
+            <!-- 分頁 2: 報名 -->
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="false">
+                    📝 線上報名
+                </button>
+            </li>
+        </ul>
+
+        <!-- 分頁內容 -->
+        <div class="tab-content" id="myTabContent">
             
-            <!-- 搜尋輸入區 -->
-            <div class="mb-4">
-                <label for="phoneInput" class="form-label fw-bold">請輸入報名時填寫的手機號碼：</label>
-                <div class="input-group input-group-lg">
-                    <input type="tel" id="phoneInput" class="form-control" placeholder="例如：0912345678" onkeypress="handleEnter(event)">
-                    <button class="btn btn-primary" type="button" onclick="searchData()">
-                        🔍 查詢
-                    </button>
-                </div>
-                <div class="form-text text-muted mt-2">
-                    系統將列出該號碼底下所有的報名紀錄 (不含人數統計資訊)。
+            <!-- 內容區塊 1: 查詢介面 -->
+            <div class="tab-pane fade show active" id="query-pane" role="tabpanel" aria-labelledby="query-tab">
+                <div class="p-2">
+                    <div class="mb-4 text-center">
+                        <label for="phoneInput" class="form-label fw-bold fs-5">請輸入報名時填寫的手機號碼：</label>
+                        <div class="input-group input-group-lg mt-2">
+                            <input type="tel" id="phoneInput" class="form-control" placeholder="例如：0912345678" onkeypress="handleEnter(event)">
+                            <button class="btn btn-primary" type="button" onclick="searchData()">
+                                查詢
+                            </button>
+                        </div>
+                        <div class="form-text text-muted mt-2">
+                            輸入後按下查詢，系統將列出您的所有報名紀錄。
+                        </div>
+                    </div>
+
+                    <!-- 讀取動畫 -->
+                    <div id="loadingSpinner" class="text-center my-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-primary">資料查詢中...</p>
+                    </div>
+
+                    <!-- 錯誤訊息 -->
+                    <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+                    <!-- 結果顯示區 -->
+                    <div id="resultArea"></div>
                 </div>
             </div>
 
-            <!-- 讀取動畫 -->
-            <div id="loadingSpinner" class="text-center my-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <!-- 內容區塊 2: Google 表單 -->
+            <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
+                <div class="google-form-wrapper">
+                    <!-- 嵌入 Google 表單 -->
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true" 
+                            title="社團報名表單">
+                        載入中...
+                    </iframe>
                 </div>
-                <p class="mt-2 text-primary">正在連線資料庫，請稍候...</p>
             </div>
 
-            <!-- 錯誤訊息顯示區 -->
-            <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
-
-            <!-- 查詢結果顯示區 -->
-            <div id="resultArea"></div>
         </div>
     </div>
     
     <div class="text-center mt-4 text-muted" style="font-size: 0.85rem;">
-        &copy; 社團查詢系統 | 資料來源：Google 試算表即時連線
+        &copy; 社團系統 | 資料來源：Google 試算表 & 表單
     </div>
 </div>
 
@@ -112,82 +169,66 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // =========================================================================
-    // 【設定區】請務必修改下方的網址
-    // =========================================================================
+    // ==========================================
+    // 【設定區】請修改此處的網址
+    // ==========================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec"; 
-    // 正確格式範例："https://script.google.com/macros/s/AKfycbx.../exec"
-    // 注意：網址結尾必須是 /exec，不能是 /edit
+    // 例如："https://script.google.com/macros/s/AKfycbx.../exec"
 
-    /**
-     * 監聽 Enter 鍵
-     */
+    // 監聽 Enter 鍵
     function handleEnter(event) {
         if (event.key === "Enter") {
             searchData();
         }
     }
 
-    /**
-     * 執行查詢的主程式 (包含增強的錯誤處理)
-     */
+    // 執行查詢
     async function searchData() {
         const phoneInput = document.getElementById('phoneInput').value.trim();
         const resultArea = document.getElementById('resultArea');
         const spinner = document.getElementById('loadingSpinner');
         const errorMsg = document.getElementById('errorMessage');
 
-        // 1. 初始化介面
         resultArea.innerHTML = "";
         errorMsg.classList.add('d-none');
         
-        // 2. 檢查是否已設定網址
         if (!SCRIPT_URL || SCRIPT_URL.includes("請將這裡替換")) {
-            showError("❌ 系統設定錯誤：尚未設定後端網址 (SCRIPT_URL)。請聯絡管理員更新程式碼。");
+            showError("❌ 錯誤：尚未設定後端網址 (SCRIPT_URL)，請聯絡管理員。");
             return;
         }
 
-        // 3. 檢查輸入
         if (!phoneInput) {
             showError("⚠️ 請輸入手機號碼！");
             return;
         }
 
-        // 顯示讀取動畫
         spinner.style.display = 'block';
 
         try {
-            // 4. 發送請求 (使用 text() 接收以利除錯)
             const response = await fetch(`${SCRIPT_URL}?phone=${encodeURIComponent(phoneInput)}`, {
                 method: "GET",
             });
-
             const textData = await response.text();
-            spinner.style.display = 'none'; // 隱藏動畫
+            spinner.style.display = 'none';
 
-            // 5. 嘗試解析 JSON
             let json;
             try {
                 json = JSON.parse(textData);
             } catch (e) {
-                // 解析失敗，通常代表 Google 回傳了 HTML 錯誤頁面 (權限不足)
-                console.error("解析失敗，原始回傳內容：", textData);
-                
                 if (textData.includes("Google") || textData.includes("DOCTYPE")) {
-                    showError("⛔ 權限錯誤：GitHub 無法讀取資料表。請檢查 Apps Script 部署設定中的「誰可以存取」是否已設為「所有人 (Anyone)」。");
+                    showError("⛔ 權限錯誤：GitHub 無法讀取資料，請檢查 GAS 部署設定是否為「所有人」。");
                 } else {
-                    showError("❌ 資料格式錯誤，請稍後再試或聯絡管理員。");
+                    showError("❌ 資料格式錯誤，請稍後再試。");
                 }
                 return;
             }
 
-            // 6. 處理正常的 JSON 回傳
             if (json.status === 'success') {
                 if (json.data.length === 0) {
                     resultArea.innerHTML = `
                         <div class="alert alert-warning text-center">
-                            找不到此手機號碼 (<strong>${phoneInput}</strong>) 的報名資料。
-                            <br><small>請確認輸入的號碼是否與報名時填寫的一致。</small>
+                            找不到此手機號碼 (<strong>${phoneInput}</strong>) 的報名資料。<br>
+                            <small>若剛報名完成，請稍等幾分鐘後再查詢。</small>
                         </div>`;
                 } else {
                     renderResults(json.data);
@@ -198,22 +239,17 @@
 
         } catch (error) {
             spinner.style.display = 'none';
-            console.error("連線錯誤詳情:", error);
-            showError("📡 連線發生錯誤 (Network/CORS)。請確認您的網路連線，或檢查 GAS 網址設定是否正確。");
+            console.error(error);
+            showError("📡 連線發生錯誤，請檢查網路或網址設定。");
         }
     }
 
-    /**
-     * 渲染查詢結果卡片
-     */
+    // 渲染結果
     function renderResults(data) {
         const resultArea = document.getElementById('resultArea');
         let html = `<h5 class="mb-3 ps-2 border-start border-4 border-primary">查詢結果：共 ${data.length} 筆</h5>`;
 
         data.forEach((item) => {
-            // item.club 已經在後端被處理過 (只保留括號左邊)，這裡直接顯示
-            
-            // 簡單處理時間顯示 (若有 T 則取代為空格，並只取前16碼)
             let timeStr = item.timestamp || "";
             if(timeStr.includes("T")) {
                 timeStr = timeStr.replace("T", " ").substring(0, 16);
@@ -224,39 +260,32 @@
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <h4 class="card-title club-name mb-3">
+                                <h4 class="card-title club-name mb-2">
                                     ${item.club}
                                 </h4>
-                                <div class="student-info">
-                                    <p class="mb-1">
-                                        <span class="badge bg-secondary me-2">學生</span>
-                                        <strong>${item.student_name}</strong>
-                                    </p>
-                                    <p class="mb-1">
-                                        <span class="badge bg-info text-dark me-2">班級</span>
+                                <div class="text-secondary" style="font-size: 1.05rem;">
+                                    <span class="badge bg-secondary badge-custom me-2">學生</span>
+                                    ${item.student_name}
+                                    <span class="ms-2 badge bg-light text-dark border badge-custom">
                                         ${item.grade} ${item.class_name} (${item.seat_num}號)
-                                    </p>
+                                    </span>
                                 </div>
                             </div>
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                 <small class="text-muted d-block">報名時間</small>
-                                <span class="fw-bold text-secondary">${timeStr}</span>
+                                <span class="fw-bold text-dark">${timeStr}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
         });
-
         resultArea.innerHTML = html;
     }
 
-    /**
-     * 顯示錯誤訊息的輔助函式
-     */
     function showError(msg) {
         const errorMsg = document.getElementById('errorMessage');
-        errorMsg.innerHTML = msg; // 允許使用 HTML 標籤 (如 <strong>)
+        errorMsg.innerHTML = msg;
         errorMsg.classList.remove('d-none');
     }
 </script>
