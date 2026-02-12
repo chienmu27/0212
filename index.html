@@ -29,7 +29,7 @@
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0/client",
     "lucide-react": "https://esm.sh/lucide-react@0.263.1",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/"
@@ -49,19 +49,15 @@
         const SPREADSHEET_ID = '17gOPXFMR1UzS5NHOE7MV6Jbfzo1blDnkmjBksSdpCvk';
         const SHEET_NAME = '表單回應 1';
         
-        /** 
-         * 若要啟用刪除功能，請將此處替換為您的 Google Apps Script 部署網址 
-         * 腳本範例見下方註釋
-         */
-        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby-14hjeqG2pf452I0uPUPDjpA2-cRMy_5N1FzCCdN5pXgagLha5oJkHCuNvzREUIVEYw/exec';
+        // 請確保此處為您最新的 GAS 部署網址
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyrhvVgOr4tI_3PtQDJJGthYbPYdgbss3MqbxmXz9B_w_sC-0SA2B4Kk0muZ_e93DlVkA/exec';
 
         const App = () => {
             const [phoneNumber, setPhoneNumber] = useState('');
             const [results, setResults] = useState([]);
-            const [status, setStatus] = useState('IDLE'); // IDLE, LOADING, SUCCESS, ERROR
+            const [status, setStatus] = useState('IDLE'); 
             const [message, setMessage] = useState('');
 
-            // 格式化社團名稱：取 ( 左邊的文字
             const formatClubName = (fullName) => {
                 if (!fullName) return '';
                 return fullName.split('(')[0].trim();
@@ -81,14 +77,13 @@
                     const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
                     const response = await fetch(url);
                     const text = await response.text();
-                    // 移除 Google 回傳的 JSON 封裝前綴
                     const jsonData = JSON.parse(text.substring(47, text.length - 2));
                     
                     const rows = jsonData.table.rows;
                     const records = rows.map((row, index) => {
                         const c = row.c;
                         return {
-                            rowId: index + 1, // 試算表行號
+                            rowId: index + 1,
                             timestamp: c[0]?.v || '',
                             email: c[1]?.v || '',
                             clubItem: c[2]?.v || '',
@@ -105,13 +100,13 @@
                     setResults(filtered);
                     
                     if (filtered.length === 0) {
-                        setMessage('查無此手機號碼的報名紀錄，請確認號碼是否正確。');
+                        setMessage('查無此手機號碼的報名紀錄。');
                     }
                     setStatus('SUCCESS');
                 } catch (error) {
                     console.error('Fetch error:', error);
                     setStatus('ERROR');
-                    setMessage('讀取試算表失敗，請確認該試算表是否已設為「知道連結的人皆可查看」。');
+                    setMessage('讀取試算表失敗，請檢查設定。');
                 }
             };
 
@@ -120,46 +115,40 @@
                     return;
                 }
 
-                if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes('YOUR_GAS')) {
-                    alert('系統提示：尚未設定後端刪除腳本(GAS)。此按鈕目前僅為介面展示，無法實際刪除試算表資料。');
-                    return;
-                }
-
                 setStatus('LOADING');
                 try {
-                    // 使用 POST 發送刪除請求給 GAS
+                    // 重要修正：移除 headers 以避免 CORS 預檢失敗
+                    // mode: 'no-cors' 配合簡單請求，雖然無法讀取回傳值，但能成功送達 GAS
                     await fetch(GAS_WEB_APP_URL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             action: 'delete',
-                            timestamp: record.timestamp,
-                            phoneNumber: record.phoneNumber
+                            timestamp: String(record.timestamp),
+                            phoneNumber: record.phoneNumber,
+                            studentName: record.studentName
                         })
                     });
                     
-                    // 移除畫面上該筆資料
-                    setResults(prev => prev.filter(r => r.timestamp !== record.timestamp));
-                    alert('刪除請求已送出，資料稍後將會更新。');
+                    // 樂觀更新介面
+                    setResults(prev => prev.filter(r => r.timestamp !== record.timestamp || r.studentName !== record.studentName));
+                    alert('刪除請求已送出！若資料未消失，請稍候幾秒再重新查詢。');
                 } catch (error) {
-                    alert('連線至刪除服務失敗，請檢查網路或腳本設定。');
+                    console.error('Delete error:', error);
+                    alert('連線至刪除服務失敗。');
                 }
                 setStatus('SUCCESS');
             };
 
             return React.createElement('div', { className: 'min-h-screen pb-12' }, [
-                // Header
                 React.createElement('header', { className: 'bg-blue-600 text-white shadow-lg mb-8' }, 
                     React.createElement('div', { className: 'max-w-4xl mx-auto px-4 py-10 text-center' }, [
                         React.createElement('h1', { className: 'text-3xl font-bold tracking-tight mb-2' }, '社團報名查詢系統'),
-                        React.createElement('p', { className: 'text-blue-100 opacity-90' }, '請輸入手機號碼查詢您的報名狀況')
+                        React.createElement('p', { className: 'text-blue-100 opacity-90' }, '輸入手機號碼進行資料管理')
                     ])
                 ),
 
-                // Main Content
                 React.createElement('main', { className: 'max-w-4xl mx-auto px-4' }, [
-                    // Search Bar
                     React.createElement('div', { className: 'bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8' }, 
                         React.createElement('form', { onSubmit: handleSearch, className: 'flex flex-col md:flex-row gap-4' }, [
                             React.createElement('div', { className: 'relative flex-grow' }, 
@@ -179,20 +168,18 @@
                         ])
                     ),
 
-                    // Message Area
                     message && React.createElement('div', { className: `mb-8 p-4 rounded-xl flex items-center gap-3 ${status === 'ERROR' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'}` }, [
                         React.createElement(Info, { size: 20 }),
                         React.createElement('p', { className: 'font-medium' }, message)
                     ]),
 
-                    // Results
                     results.length > 0 && React.createElement('div', { className: 'space-y-4' }, [
                         React.createElement('h2', { className: 'text-xl font-bold text-slate-800 mb-4' }, `找到 ${results.length} 筆紀錄`),
                         ...results.map((record, i) => 
                             React.createElement('div', { key: i, className: 'bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4' }, [
                                 React.createElement('div', null, [
                                     React.createElement('div', { className: 'flex items-center gap-2 mb-1' }, [
-                                        React.createElement('span', { className: 'bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded' }, `${record.grade}${record.className}`),
+                                        React.createElement('span', { className: 'bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded' }, `${record.grade}年${record.className}班`),
                                         React.createElement('h3', { className: 'text-lg font-bold' }, record.studentName)
                                     ]),
                                     React.createElement('p', { className: 'text-slate-600' }, [
@@ -213,48 +200,20 @@
                     ])
                 ]),
 
-                // Footer / Instructions
                 React.createElement('footer', { className: 'max-w-4xl mx-auto px-4 mt-12' }, 
                     React.createElement('div', { className: 'bg-slate-800 text-slate-300 p-6 rounded-2xl text-sm' }, [
-                        React.createElement('h4', { className: 'font-bold text-white mb-2' }, '💡 使用小撇步'),
+                        React.createElement('h4', { className: 'font-bold text-white mb-2' }, '💡 提示'),
                         React.createElement('ul', { className: 'list-disc list-inside space-y-1' }, [
-                            React.createElement('li', null, '本系統僅顯示社團主名稱（去除人數與備註訊息）。'),
-                            React.createElement('li', null, '輸入手機號碼必須與填寫報名表時完全一致。'),
-                            React.createElement('li', null, '如欲修改報名資料，請先在此「刪除」舊紀錄後重新報名。')
+                            React.createElement('li', null, '如執行刪除後資料未即時更新，請重新查詢。'),
+                            React.createElement('li', null, '請確保您的 Google Apps Script 已部署為「任何人」皆可存取。')
                         ])
                     ])
                 )
             ]);
         };
 
-        /**
-         * ------------------------------------------------------------------
-         * 【後端 Google Apps Script 參考程式碼】
-         * 請在試算表中點選「擴充功能 > Apps Script」並貼入以下內容：
-         * 
-         * function doPost(e) {
-         *   var params = JSON.parse(e.postData.contents);
-         *   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("表單回應 1");
-         *   var data = sheet.getDataRange().getValues();
-         *   
-         *   if (params.action === "delete") {
-         *     for (var i = data.length - 1; i >= 1; i--) {
-         *       // 根據 時間戳記 與 手機號碼 同時比對確保刪除正確行
-         *       if (data[i][0].toString() === params.timestamp && data[i][7].toString() === params.phoneNumber) {
-         *         sheet.deleteRow(i + 1);
-         *         return ContentService.createTextOutput("Deleted");
-         *       }
-         *     }
-         *   }
-         *   return ContentService.createTextOutput("No Action");
-         * }
-         * ------------------------------------------------------------------
-         */
-
-        ReactDOM.render(
-            React.createElement(App),
-            document.getElementById('root')
-        );
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
     </script>
 </body>
 </html>
