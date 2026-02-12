@@ -15,11 +15,12 @@
     .card-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
   </style>
 
+  <!-- ✅ GitHub Pages 最穩定的 importmap -->
   <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
     "lucide-react": "https://esm.sh/lucide-react@0.263.1"
   }
 }
@@ -37,7 +38,7 @@
     const SPREADSHEET_ID = "17gOPXFMR1UzS5NHOE7MV6Jbfzo1blDnkmjBksSdpCvk";
     const SHEET_NAME = "表單回應 1";
 
-    // ⚠️ 這裡換成你部署的 Web App /exec
+    // ⚠️ 請確認是最新部署的 /exec
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5rHaglom7hjSGWHD8YCwvt_AGusjBXgosY87hdHvJHhU_4z5vaJTyib1gxN9fLbCG0w/exec";
 
     const App = () => {
@@ -100,6 +101,7 @@
 
           setStatus("SUCCESS");
         } catch (error) {
+          console.error(error);
           setStatus("ERROR");
           setMessage("連線失敗，請檢查網路或試算表權限。");
         }
@@ -127,7 +129,7 @@
             })
           });
 
-          const data = await res.json(); // ✅ 這次可以讀到結果
+          const data = await res.json();
 
           if (data.status === "SUCCESS") {
             setResults((prev) =>
@@ -147,6 +149,7 @@
 
           setStatus("SUCCESS");
         } catch (error) {
+          console.error(error);
           alert("刪除失敗：可能是 GAS 未開啟 CORS 或網路問題。");
           setStatus("ERROR");
         }
