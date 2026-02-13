@@ -79,20 +79,33 @@
             margin-bottom: 20px;
         }
 
-        /* Google 表單 iframe 高度自適應 */
+        /* Google 表單 iframe */
         .google-form-wrapper {
-            position: relative;
             width: 100%;
-            height: 100vh; /* 手機預設高度 */
-            overflow: auto;
-            -webkit-overflow-scrolling: touch; /* 手機滑動順暢 */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 避免外框捲軸 */
         }
         .google-form-wrapper iframe {
             width: 100%;
             height: 1800px;
-           
             border: none;
-            min-height: 100vh;
+            display: block;
+        }
+
+        /* PDF iframe */
+        .pdf-wrapper {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .pdf-wrapper iframe {
+            width: 100%;
+            height: 1200px; /* 約1張A4顯示高度 */
+            border: none;
+            display: block;
+            background: #fff;
         }
 
         /* 查詢結果卡片樣式 */
@@ -121,18 +134,26 @@
             🏫 社團報名與查詢系統
         </div>
         
-        <!-- 分頁導航 (三個分頁) -->
+        <!-- 分頁導航 (四個分頁) -->
         <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-pane" type="button" role="tab" aria-controls="info-pane" aria-selected="true">
                     📢 報名需知
                 </button>
             </li>
+
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdf-pane" type="button" role="tab" aria-controls="pdf-pane" aria-selected="false">
+                    📄 招生簡章
+                </button>
+            </li>
+
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="false">
                     📝 線上報名
                 </button>
             </li>
+
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="query-tab" data-bs-toggle="tab" data-bs-target="#query-pane" type="button" role="tab" aria-controls="query-pane" aria-selected="false">
                     🔍 查詢紀錄
@@ -182,11 +203,11 @@
                     <li>退費一律採<strong>郵局轉帳</strong>方式，無帳戶者以支票辦理。</li>
                 </ul>
 
-<hr class="my-4">
+                <hr class="my-4">
 
-<div class="text-muted small">
-    三、本辦法經校務會議通過後，呈 校長核可後施行。
-</div>
+                <div class="text-muted small">
+                    三、本辦法經校務會議通過後，呈 校長核可後施行。
+                </div>
 
                 <hr>
                 <div class="text-center mt-4">
@@ -197,7 +218,32 @@
                 </div>
             </div>
 
-            <!-- 內容區塊 2: Google 表單 -->
+            <!-- 內容區塊 2: 招生簡章 PDF -->
+            <div class="tab-pane fade" id="pdf-pane" role="tabpanel" aria-labelledby="pdf-tab">
+                <div class="p-2">
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <div class="me-2">📄</div>
+                        <div>
+                            若 PDF 無法顯示，請點此
+                            <a href="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/view?usp=drive_link" target="_blank" rel="noopener">
+                                開啟招生簡章
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pdf-wrapper">
+                        <iframe
+                            src="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/preview"
+                            title="社團招生簡章 PDF"
+                            allow="autoplay"
+                        >
+                            載入中...
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 內容區塊 3: Google 表單 -->
             <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
                 <div class="google-form-wrapper">
                     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true" 
@@ -208,7 +254,7 @@
                 </div>
             </div>
 
-            <!-- 內容區塊 3: 查詢介面 -->
+            <!-- 內容區塊 4: 查詢介面 -->
             <div class="tab-pane fade" id="query-pane" role="tabpanel" aria-labelledby="query-tab">
                 <div class="p-2">
                     <div class="mb-4 text-center">
