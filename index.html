@@ -243,7 +243,6 @@
                 <div class="text-center mt-4">
                     <p>閱讀完畢後，請點選上方 <strong>「📝 線上報名」</strong> 頁籤進行報名。</p>
 
-                    <!-- ✅ 已修改：改呼叫 goToFormTab() -->
                     <button class="btn btn-primary" onclick="goToFormTab()">
                         我已閱讀，前往報名 &raquo;
                     </button>
@@ -285,7 +284,6 @@
             <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
                 <div class="google-form-wrapper">
 
-                    <!-- ✅ 已修改：加上 id，方便重新載入 -->
                     <iframe
                         id="googleFormIframe"
                         src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true"
@@ -340,20 +338,38 @@
 
     function handleEnter(event) { if (event.key === "Enter") searchData(); }
 
-    // ✅ 新增：切換到表單頁籤 + 重新載入 iframe（避免灰屏卡住）
+    // ✅ 抽出成「重載表單」函式：按按鈕、點 Tab 都會共用
+    function reloadGoogleForm() {
+        const iframe = document.getElementById("googleFormIframe");
+        if (!iframe) return;
+
+        // 重新載入（加時間戳避免快取）
+        iframe.src = GOOGLE_FORM_URL + "&_ts=" + Date.now();
+    }
+
+    // ✅ 按「我已閱讀，前往報名」：切換 Tab + 重載表單
     function goToFormTab() {
-        // 1) 切換到線上報名 tab
         document.getElementById('form-tab').click();
 
-        // 2) 延遲一下等 tab 顯示後，再重新載入 iframe
+        // 延遲一下等 Tab 顯示後再重載，避免灰屏卡住
         setTimeout(() => {
-            const iframe = document.getElementById("googleFormIframe");
-            if (!iframe) return;
-
-            // 重新載入（加時間戳避免快取）
-            iframe.src = GOOGLE_FORM_URL + "&_ts=" + Date.now();
+            reloadGoogleForm();
         }, 250);
     }
+
+    // ✅ 新增：只要使用者「切換到 線上報名 Tab」，就自動重載表單
+    document.addEventListener("DOMContentLoaded", function () {
+        const formTabBtn = document.getElementById("form-tab");
+        if (!formTabBtn) return;
+
+        // Bootstrap tab 事件：tab 顯示完成後觸發
+        formTabBtn.addEventListener("shown.bs.tab", function () {
+            // 顯示完成後重載
+            setTimeout(() => {
+                reloadGoogleForm();
+            }, 200);
+        });
+    });
 
     async function searchData() {
         const phoneInput = document.getElementById('phoneInput').value.trim();
