@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>社團報名與查詢系統</title>
+
     <!-- 引入 Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -30,7 +32,7 @@
             font-size: 1.3rem;
             text-align: center;
         }
-        
+
         /* 分頁按鈕樣式 */
         .nav-tabs .nav-link {
             color: #495057;
@@ -93,19 +95,33 @@
             display: block;
         }
 
-        /* PDF iframe */
+        /* ==============================
+           PDF 顯示（桌機內嵌 / 手機按鈕）
+           ============================== */
+
+        /* 桌機版 PDF iframe */
         .pdf-wrapper {
             width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            height: 1200px; /* 約 1 張 A4 顯示高度 */
+            border-radius: 12px;
+            overflow: hidden; /* 外框不捲 */
+            border: 1px solid #e5e7eb;
+            background: #fff;
         }
         .pdf-wrapper iframe {
             width: 100%;
-            height: 1200px; /* 約1張A4顯示高度 */
-            border: none;
+            height: 100%;
+            border: 0;
             display: block;
-            background: #fff;
+        }
+
+        /* 手機版 / 桌機版顯示控制 */
+        .pdf-mobile-only { display: none; }
+        .pdf-desktop-only { display: block; }
+
+        @media (max-width: 768px) {
+            .pdf-mobile-only { display: block; }
+            .pdf-desktop-only { display: none; }
         }
 
         /* 查詢結果卡片樣式 */
@@ -126,6 +142,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -133,7 +150,7 @@
         <div class="card-header-custom">
             🏫 社團報名與查詢系統
         </div>
-        
+
         <!-- 分頁導航 (四個分頁) -->
         <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -163,7 +180,7 @@
 
         <!-- 分頁內容 -->
         <div class="tab-content" id="myTabContent">
-            
+
             <!-- 內容區塊 1: 報名需知 -->
             <div class="tab-pane fade show active info-section p-2" id="info-pane" role="tabpanel" aria-labelledby="info-tab">
                 <!-- 重要提醒區塊 -->
@@ -186,7 +203,7 @@
 
                 <h4>台東縣東海國小社團退費辦法</h4>
                 <p class="text-muted"><strong>⚠️ 報名即佔用上課名額，於報名時間截止視為報名成功。</strong></p>
-                
+
                 <h5 class="mt-3 text-dark fw-bold">一、退費標準</h5>
                 <ul>
                     <li><strong>全額退費：</strong> 本校因故未能開班上課。</li>
@@ -218,35 +235,48 @@
                 </div>
             </div>
 
-            <!-- 內容區塊 2: 招生簡章 PDF -->
+            <!-- 內容區塊 2: 招生簡章 PDF（已修正：桌機內嵌 / 手機按鈕） -->
             <div class="tab-pane fade" id="pdf-pane" role="tabpanel" aria-labelledby="pdf-tab">
                 <div class="p-2">
+
                     <div class="alert alert-info d-flex align-items-center" role="alert">
                         <div class="me-2">📄</div>
                         <div>
-                            若 PDF 無法顯示，請點此
+                            若 PDF 無法顯示或手機出現黑色區塊，請點此
                             <a href="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/view?usp=drive_link" target="_blank" rel="noopener">
                                 開啟招生簡章
                             </a>
                         </div>
                     </div>
 
-                    <div class="pdf-wrapper">
+                    <!-- 手機版：不內嵌，避免黑色上下區塊 -->
+                    <div class="pdf-mobile-only text-center">
+                        <a class="btn btn-primary btn-lg w-100"
+                           href="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/view?usp=drive_link"
+                           target="_blank" rel="noopener">
+                            📄 點我開啟招生簡章 PDF
+                        </a>
+                        <div class="form-text text-muted mt-2">
+                            （手機內嵌 PDF 容易出現黑色區塊，建議用開啟方式閱讀）
+                        </div>
+                    </div>
+
+                    <!-- 桌機版：內嵌預覽 -->
+                    <div class="pdf-desktop-only pdf-wrapper">
                         <iframe
                             src="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/preview"
                             title="社團招生簡章 PDF"
                             allow="autoplay"
-                        >
-                            載入中...
-                        </iframe>
+                        ></iframe>
                     </div>
+
                 </div>
             </div>
 
             <!-- 內容區塊 3: Google 表單 -->
             <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
                 <div class="google-form-wrapper">
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true" 
+                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true"
                             title="社團報名表單"
                             scrolling="yes">
                         載入中...
@@ -284,7 +314,7 @@
 
         </div>
     </div>
-    
+
     <div class="text-center mt-4 text-muted" style="font-size: 0.85rem;">
         &copy; 社團系統 | 資料來源：Google 試算表 & 表單
     </div>
@@ -294,7 +324,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec";
 
     function handleEnter(event) {
         if (event.key === "Enter") searchData();
@@ -322,8 +352,11 @@
             const response = await fetch(`${SCRIPT_URL}?phone=${encodeURIComponent(phoneInput)}`);
             const textData = await response.text();
             spinner.style.display = 'none';
+
             let json;
-            try { json = JSON.parse(textData); } catch (e) {
+            try {
+                json = JSON.parse(textData);
+            } catch (e) {
                 if (textData.includes("Google") || textData.includes("DOCTYPE")) {
                     showError("⛔ 權限錯誤：GitHub 無法讀取資料，請檢查 GAS 部署設定是否為「所有人」。");
                 } else {
@@ -331,11 +364,21 @@
                 }
                 return;
             }
+
             if (json.status === 'success') {
                 if (json.data.length === 0) {
-                    resultArea.innerHTML = `<div class="alert alert-warning text-center">找不到此手機號碼 (<strong>${phoneInput}</strong>) 的報名資料。<br><small>若剛報名完成，請稍等幾分鐘後再查詢。</small></div>`;
-                } else { renderResults(json.data); }
-            } else { showError("❌ 查詢失敗：" + json.message); }
+                    resultArea.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            找不到此手機號碼 (<strong>${phoneInput}</strong>) 的報名資料。
+                            <br>
+                            <small>若剛報名完成，請稍等幾分鐘後再查詢。</small>
+                        </div>`;
+                } else {
+                    renderResults(json.data);
+                }
+            } else {
+                showError("❌ 查詢失敗：" + json.message);
+            }
         } catch (error) {
             spinner.style.display = 'none';
             console.error(error);
@@ -346,9 +389,11 @@
     function renderResults(data) {
         const resultArea = document.getElementById('resultArea');
         let html = `<h5 class="mb-3 ps-2 border-start border-4 border-primary">查詢結果：共 ${data.length} 筆</h5>`;
+
         data.forEach((item) => {
             let timeStr = item.timestamp || "";
-            if(timeStr.includes("T")) timeStr = timeStr.replace("T", " ").substring(0, 16);
+            if (timeStr.includes("T")) timeStr = timeStr.replace("T", " ").substring(0, 16);
+
             html += `
                 <div class="card result-card">
                     <div class="card-body">
@@ -370,6 +415,7 @@
                     </div>
                 </div>`;
         });
+
         resultArea.innerHTML = html;
     }
 
