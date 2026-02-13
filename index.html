@@ -81,16 +81,18 @@
             margin-bottom: 20px;
         }
 
-        /* Google 表單 iframe */
+        /* ==============================
+           Google 表單 iframe
+           ============================== */
         .google-form-wrapper {
             width: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* 避免外框捲軸 */
+            overflow: hidden; /* 桌機版不顯示外框捲軸 */
         }
         .google-form-wrapper iframe {
             width: 100%;
-            height: 1800px;
+            height: 1800px; /* 桌機版高度 */
             border: none;
             display: block;
         }
@@ -98,13 +100,11 @@
         /* ==============================
            PDF 顯示（桌機內嵌 / 手機按鈕）
            ============================== */
-
-        /* 桌機版 PDF iframe */
         .pdf-wrapper {
             width: 100%;
-            height: 1200px; /* 約 1 張 A4 顯示高度 */
+            height: 1200px;
             border-radius: 12px;
-            overflow: hidden; /* 外框不捲 */
+            overflow: hidden;
             border: 1px solid #e5e7eb;
             background: #fff;
         }
@@ -114,14 +114,23 @@
             border: 0;
             display: block;
         }
-
-        /* 手機版 / 桌機版顯示控制 */
         .pdf-mobile-only { display: none; }
         .pdf-desktop-only { display: block; }
 
         @media (max-width: 768px) {
+            /* 手機 PDF 顯示 */
             .pdf-mobile-only { display: block; }
             .pdf-desktop-only { display: none; }
+
+            /* 手機 Google 表單：外框可捲動，iframe 可捲動 */
+            .google-form-wrapper {
+                height: 100vh;
+                overflow: auto; /* 外框捲軸 */
+            }
+            .google-form-wrapper iframe {
+                height: 2000px; /* 可以依內容自行調整 */
+                overflow: auto; /* 內框捲軸 */
+            }
         }
 
         /* 查詢結果卡片樣式 */
@@ -151,26 +160,23 @@
             🏫 社團報名與查詢系統
         </div>
 
-        <!-- 分頁導航 (四個分頁) -->
+        <!-- 分頁導航 -->
         <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-pane" type="button" role="tab" aria-controls="info-pane" aria-selected="true">
                     📢 報名需知
                 </button>
             </li>
-
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdf-pane" type="button" role="tab" aria-controls="pdf-pane" aria-selected="false">
                     📄 社團項目
                 </button>
             </li>
-
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-pane" type="button" role="tab" aria-controls="form-pane" aria-selected="false">
                     📝 線上報名
                 </button>
             </li>
-
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="query-tab" data-bs-toggle="tab" data-bs-target="#query-pane" type="button" role="tab" aria-controls="query-pane" aria-selected="false">
                     🔍 報名查詢
@@ -181,64 +187,24 @@
         <!-- 分頁內容 -->
         <div class="tab-content" id="myTabContent">
 
-            <!-- 內容區塊 1: 報名需知 -->
+            <!-- 報名需知 -->
             <div class="tab-pane fade show active info-section p-2" id="info-pane" role="tabpanel" aria-labelledby="info-tab">
-                <!-- 重要提醒區塊 -->
                 <div class="highlight-box">
                     <strong>⚠️ 重要提醒：</strong> 請務必確認學生年級是否符合社團招收規定，重複報名者將以最後一次提交的時間為準。
                 </div>
                 <div class="highlight-box">
                     <strong>⚠️ 重要公告：</strong> 下學期社團活動為期 <strong>15週 (3月2日起開始)</strong>。
-                    <br>
-                    收費暫以 10 人計算，若不足 10 人不開課；超過 10 人將向下調整費用，最終以公告費用為準。若報名人數過多，將進行遴選或抽籤。
                 </div>
-
                 <h4>⛔ 注意事項</h4>
                 <ul>
-                    <li><strong>接送安全：</strong> 請家長務必準時接送孩子回家。如無法配合，為確保學生安全，學校保有學生退社之權利。</li>
-                    <li><strong>續讀評估：</strong> 上學期已報名的學生，社團老師將視學習情況，評估是否適合繼續參加或建議轉報其他社團。</li>
-                    <li><strong>費用優惠：</strong> 具低收入戶證明學生，得享有學費 <strong>5折</strong> 優惠。</li>
-                    <li><strong>審慎報名：</strong> 指導費以人數分攤計算，一旦符合開社條件即視為報名成功。臨時退社將增加學校負擔，請務必審慎考慮。</li>
+                    <li><strong>接送安全：</strong> 請家長務必準時接送孩子回家。</li>
+                    <li><strong>續讀評估：</strong> 上學期已報名的學生，社團老師將視學習情況，評估是否適合繼續參加。</li>
                 </ul>
-
-                <h4>台東縣東海國小社團退費辦法</h4>
-                <p class="text-muted"><strong>⚠️ 報名即佔用上課名額，於報名時間截止視為報名成功。</strong></p>
-
-                <h5 class="mt-3 text-dark fw-bold">一、退費標準</h5>
-                <ul>
-                    <li><strong>全額退費：</strong> 本校因故未能開班上課。</li>
-                    <li><strong>退還 70%：</strong> 完成報名後，於「報名截止至上課前」申請退社者。</li>
-                    <li><strong>退還 50%：</strong> 自實際上課日起，「未逾全期三分之一」者。</li>
-                    <li><strong>不予退費：</strong> 上課已「超過全期三分之一」者。</li>
-                    <li><strong>特殊請假：</strong> 除因公假、喪假而短期無法上課 (依比例退費) 外，其他因素短期請假皆不予退費。</li>
-                </ul>
-
-                <h5 class="mt-3 text-dark fw-bold">二、辦理方式</h5>
-                <ul>
-                    <li>得親自或委託他人辦理 (委託需攜帶委託書)。</li>
-                    <li>請至<strong>學務處</strong>填寫退費申請書乙份。</li>
-                    <li>退費一律採<strong>郵局轉帳</strong>方式，無帳戶者以支票辦理。</li>
-                </ul>
-
-                <hr class="my-4">
-
-                <div class="text-muted small">
-                    三、本辦法經校務會議通過後，呈 校長核可後施行。
-                </div>
-
-                <hr>
-                <div class="text-center mt-4">
-                    <p>閱讀完畢後，請點選上方 <strong>「📝 線上報名」</strong> 頁籤進行報名。</p>
-                    <button class="btn btn-primary" onclick="document.getElementById('form-tab').click()">
-                        我已閱讀，前往報名 &raquo;
-                    </button>
-                </div>
             </div>
 
-            <!-- 內容區塊 2: 招生簡章 PDF（已修正：桌機內嵌 / 手機按鈕） -->
+            <!-- PDF 招生簡章 -->
             <div class="tab-pane fade" id="pdf-pane" role="tabpanel" aria-labelledby="pdf-tab">
                 <div class="p-2">
-
                     <div class="alert alert-info d-flex align-items-center" role="alert">
                         <div class="me-2">📄</div>
                         <div>
@@ -249,19 +215,14 @@
                         </div>
                     </div>
 
-                    <!-- 手機版：不內嵌，避免黑色上下區塊 -->
                     <div class="pdf-mobile-only text-center">
                         <a class="btn btn-primary btn-lg w-100"
                            href="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/view?usp=drive_link"
                            target="_blank" rel="noopener">
                             📄 點我開啟招生簡章 PDF
                         </a>
-                        <div class="form-text text-muted mt-2">
-                            （手機內嵌 PDF 容易出現黑色區塊，建議用開啟方式閱讀）
-                        </div>
                     </div>
 
-                    <!-- 桌機版：內嵌預覽 -->
                     <div class="pdf-desktop-only pdf-wrapper">
                         <iframe
                             src="https://drive.google.com/file/d/1iKm55gh0tBBHmAfoA9gol15kM3a63Hil/preview"
@@ -269,11 +230,10 @@
                             allow="autoplay"
                         ></iframe>
                     </div>
-
                 </div>
             </div>
 
-            <!-- 內容區塊 3: Google 表單 -->
+            <!-- Google 表單 -->
             <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
                 <div class="google-form-wrapper">
                     <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true"
@@ -284,29 +244,25 @@
                 </div>
             </div>
 
-            <!-- 內容區塊 4: 查詢介面 -->
+            <!-- 查詢介面 -->
             <div class="tab-pane fade" id="query-pane" role="tabpanel" aria-labelledby="query-tab">
                 <div class="p-2">
                     <div class="mb-4 text-center">
-                        <label for="phoneInput" class="form-label fw-bold fs-5">請輸入報名時填寫的手機號碼：</label>
+                        <label for="phoneInput" class="form-label fw-bold fs-5">請輸入手機號碼：</label>
                         <div class="input-group input-group-lg mt-2">
                             <input type="tel" id="phoneInput" class="form-control" placeholder="例如：0912345678" onkeypress="handleEnter(event)">
-                            <button class="btn btn-primary" type="button" onclick="searchData()">
-                                查詢
-                            </button>
+                            <button class="btn btn-primary" type="button" onclick="searchData()">查詢</button>
                         </div>
                         <div class="form-text text-muted mt-2">
                             系統將列出您的所有報名紀錄。
                         </div>
                     </div>
-
                     <div id="loadingSpinner" class="text-center my-4" style="display: none;">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <p class="mt-2 text-primary">資料查詢中...</p>
                     </div>
-
                     <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
                     <div id="resultArea"></div>
                 </div>
@@ -326,9 +282,7 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec";
 
-    function handleEnter(event) {
-        if (event.key === "Enter") searchData();
-    }
+    function handleEnter(event) { if (event.key === "Enter") searchData(); }
 
     async function searchData() {
         const phoneInput = document.getElementById('phoneInput').value.trim();
@@ -338,50 +292,21 @@
         resultArea.innerHTML = "";
         errorMsg.classList.add('d-none');
 
-        if (!SCRIPT_URL || SCRIPT_URL.includes("請將這裡替換")) {
-            showError("❌ 錯誤：尚未設定後端網址 (SCRIPT_URL)，請聯絡管理員。");
-            return;
-        }
-        if (!phoneInput) {
-            showError("⚠️ 請輸入手機號碼！");
-            return;
-        }
+        if (!phoneInput) { showError("⚠️ 請輸入手機號碼！"); return; }
 
         spinner.style.display = 'block';
         try {
             const response = await fetch(`${SCRIPT_URL}?phone=${encodeURIComponent(phoneInput)}`);
             const textData = await response.text();
             spinner.style.display = 'none';
-
-            let json;
-            try {
-                json = JSON.parse(textData);
-            } catch (e) {
-                if (textData.includes("Google") || textData.includes("DOCTYPE")) {
-                    showError("⛔ 權限錯誤：GitHub 無法讀取資料，請檢查 GAS 部署設定是否為「所有人」。");
-                } else {
-                    showError("❌ 資料格式錯誤，請稍後再試。");
-                }
-                return;
-            }
-
+            let json = JSON.parse(textData);
             if (json.status === 'success') {
                 if (json.data.length === 0) {
-                    resultArea.innerHTML = `
-                        <div class="alert alert-warning text-center">
-                            找不到此手機號碼 (<strong>${phoneInput}</strong>) 的報名資料。
-                            <br>
-                            <small>若剛報名完成，請稍等幾分鐘後再查詢。</small>
-                        </div>`;
-                } else {
-                    renderResults(json.data);
-                }
-            } else {
-                showError("❌ 查詢失敗：" + json.message);
-            }
+                    resultArea.innerHTML = `<div class="alert alert-warning text-center">找不到此手機號碼 (<strong>${phoneInput}</strong>) 的報名資料。</div>`;
+                } else { renderResults(json.data); }
+            } else { showError("❌ 查詢失敗：" + json.message); }
         } catch (error) {
             spinner.style.display = 'none';
-            console.error(error);
             showError("📡 連線發生錯誤，請檢查網路或網址設定。");
         }
     }
@@ -389,11 +314,9 @@
     function renderResults(data) {
         const resultArea = document.getElementById('resultArea');
         let html = `<h5 class="mb-3 ps-2 border-start border-4 border-primary">查詢結果：共 ${data.length} 筆</h5>`;
-
         data.forEach((item) => {
             let timeStr = item.timestamp || "";
             if (timeStr.includes("T")) timeStr = timeStr.replace("T", " ").substring(0, 16);
-
             html += `
                 <div class="card result-card">
                     <div class="card-body">
@@ -415,7 +338,6 @@
                     </div>
                 </div>`;
         });
-
         resultArea.innerHTML = html;
     }
 
