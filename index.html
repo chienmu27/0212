@@ -242,7 +242,9 @@
                 <hr>
                 <div class="text-center mt-4">
                     <p>閱讀完畢後，請點選上方 <strong>「📝 線上報名」</strong> 頁籤進行報名。</p>
-                    <button class="btn btn-primary" onclick="document.getElementById('form-tab').click()">
+
+                    <!-- ✅ 已修改：改呼叫 goToFormTab() -->
+                    <button class="btn btn-primary" onclick="goToFormTab()">
                         我已閱讀，前往報名 &raquo;
                     </button>
                 </div>
@@ -282,11 +284,16 @@
             <!-- Google 表單 -->
             <div class="tab-pane fade" id="form-pane" role="tabpanel" aria-labelledby="form-tab">
                 <div class="google-form-wrapper">
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true"
-                            title="社團報名表單"
-                            scrolling="yes">
+
+                    <!-- ✅ 已修改：加上 id，方便重新載入 -->
+                    <iframe
+                        id="googleFormIframe"
+                        src="https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true"
+                        title="社團報名表單"
+                        scrolling="yes">
                         載入中...
                     </iframe>
+
                 </div>
             </div>
 
@@ -328,7 +335,25 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwwy1DPO6GYOC4xRbsMYYo9W8UWIdxih2frtRLMgDsPXmbOpvPsgMUMd6VwFNIfyaCxdA/exec";
 
+    // ✅ 表單網址集中管理（避免寫死多次）
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfDbaeTwmvifuHgyqy7k_7wst_AhcCHxQP751nIQXvWQC0dSw/viewform?embedded=true";
+
     function handleEnter(event) { if (event.key === "Enter") searchData(); }
+
+    // ✅ 新增：切換到表單頁籤 + 重新載入 iframe（避免灰屏卡住）
+    function goToFormTab() {
+        // 1) 切換到線上報名 tab
+        document.getElementById('form-tab').click();
+
+        // 2) 延遲一下等 tab 顯示後，再重新載入 iframe
+        setTimeout(() => {
+            const iframe = document.getElementById("googleFormIframe");
+            if (!iframe) return;
+
+            // 重新載入（加時間戳避免快取）
+            iframe.src = GOOGLE_FORM_URL + "&_ts=" + Date.now();
+        }, 250);
+    }
 
     async function searchData() {
         const phoneInput = document.getElementById('phoneInput').value.trim();
